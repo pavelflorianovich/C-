@@ -125,15 +125,16 @@ public:
     int N; //размер по Х
     int M; //размер по Y
     //начальное растояние между точками по X, Y, Z
-    float initial_lengthX =100;
-    float initial_lengthY = 100;
+    float initial_lengthX;
+    float initial_lengthY;
     //float initial_lengthZ;
     // единица жестккости связи жесткость связи
-    float rigidity =1;
+    float rigidity;
+    //двумерный вектор размера N+2 на M+2. крайние слои мембраны созданы для того, чтобы взимидействие граничных точек мембраны расчитывалось проще
+    std::vector<std::vector <Point>> M_Point;
 
-    std::vector<std::vector <Point>> Membrane_Point;
-
-    Membrane(){ //конструктор по умолчанию
+    //конструктор по умолчанию
+    Membrane(){
         M = 3;
         N = 3;
         //длинны и размеры по умолнчалию
@@ -142,18 +143,24 @@ public:
         //initial_lengthZ = 100;
         rigidity = 1;
     }
-
-    Membrane(int N, int M){ //конструктос с задаваемыми размерами мембраны
+    //конструктос с задаваемыми размерами мембраны
+    Membrane(int N, int M){
         this->N = N;
         this->M = M;
+        //длинны и размеры по умолнчалию
+        initial_lengthY = 100;
+        initial_lengthX = 100;
+        //initial_lengthZ = 100;
+        rigidity = 1;
     }
 
     void membrane_creation(); // cоздание мембраны с размера N+2 на M+2 крайние слои пустыщки(жесткость связей их навна 0)
     void Dynamics(int i, int j); //метод взаимодействия точки со своим окружением
     void Move_membrane(); // изменение скарастей и координат мембраны
     void Data_output (int T, Membrane* pWork); //вывод данных
-    Point Rotation (Point a, float ux, float uy, float uz);
+    //КОНЕЦ ТЕЛА КЛАССА
 };
+
 
 // cоздание мембраны с размера N+2 на M+2 крайние слои пустыщки
 void Membrane::membrane_creation() {
@@ -162,73 +169,70 @@ void Membrane::membrane_creation() {
         for(int j = 0; j < M+2; j++){
             temp.push_back(Point());
         }
-        Membrane_Point.push_back(temp);
+        M_Point.push_back(temp);
     }
 
     for (int i = 1; i < N+1; i++){
         for(int j = 1; j < M+1; j++){
-            Membrane_Point[i][j].SetR(i*initial_lengthX, j*initial_lengthY, 0); // приведение мембраны в начальное состояние с начальным координатами
+            M_Point[i][j].SetR(i*initial_lengthX, j*initial_lengthY, 0); // приведение мембраны в начальное состояние с начальным координатами
             //Membrane_Point[i][j].SetM( 5); // присваимвание каждой точке macсу
-            Membrane_Point[i][j].SerV(0,0,100); //начальное распределение скоростей
+            M_Point[i][j].SerV(0,0,100); //начальное распределение скоростей
         }
     }
 
     for (int i = 1; i < N+1; i++){ // задание жесткостей свяжей для каждой точки
         for(int j = 1; j < M+1; j++){
             if(i == 1 && j == 1){ //крайние случаи углы
-                Membrane_Point[i][j].SetRigidity(0, rigidity, 0, rigidity);
+                M_Point[i][j].SetRigidity(0, rigidity, 0, rigidity);
             } else if(i == 1 && j == M){
-                Membrane_Point[i][j].SetRigidity(0, rigidity, rigidity, 0);
+                M_Point[i][j].SetRigidity(0, rigidity, rigidity, 0);
             } else if ( i == N && j == 1){
-                Membrane_Point[i][j].SetRigidity(rigidity, 0, 0, rigidity);
+                M_Point[i][j].SetRigidity(rigidity, 0, 0, rigidity);
             }else if ( i == N && j == M){
-                Membrane_Point[i][j].SetRigidity(rigidity, 0, rigidity, 0);
+                M_Point[i][j].SetRigidity(rigidity, 0, rigidity, 0);
             }else if ( i == 1 ){ //крайние случаи края
-                Membrane_Point[i][j].SetRigidity(rigidity, rigidity, 0, rigidity);
+                M_Point[i][j].SetRigidity(rigidity, rigidity, 0, rigidity);
             }else if ( i == N){
-                Membrane_Point[i][j].SetRigidity(rigidity, rigidity, rigidity, 0);
+                M_Point[i][j].SetRigidity(rigidity, rigidity, rigidity, 0);
             }else if ( j == 1){
-                Membrane_Point[i][j].SetRigidity(0, rigidity, rigidity, rigidity);
+                M_Point[i][j].SetRigidity(0, rigidity, rigidity, rigidity);
             }else if ( j == M){
-                Membrane_Point[i][j].SetRigidity(rigidity, 0, rigidity, rigidity);
+                M_Point[i][j].SetRigidity(rigidity, 0, rigidity, rigidity);
             } else{
-                Membrane_Point[i][j].SetRigidity(rigidity, rigidity, rigidity, rigidity); //внутренние точки мембраны
+                M_Point[i][j].SetRigidity(rigidity, rigidity, rigidity, rigidity); //внутренние точки мембраны
             }
-
         }
     }
-
-
 };
 void Membrane::Dynamics(int i, int j){
     float length_top, length_bottom, length_left, length_right; //растояние между обектом действия точка Membrane_Point[i][j] и соседями
     float gamma_top, gamma_bottom, gamma_left, gamma_right; //параметр для упрощения формулы
 
-    length_top = distance(Membrane_Point[i][j], Membrane_Point[i][j-1]);
-    length_bottom = distance(Membrane_Point[i][j], Membrane_Point[i][j+1]);
-    length_left = distance(Membrane_Point[i][j], Membrane_Point[i-1][j]);
-    length_right = distance(Membrane_Point[i][j], Membrane_Point[i+1][j]);
+    length_top = distance(M_Point[i][j], M_Point[i][j-1]);
+    length_bottom = distance(M_Point[i][j], M_Point[i][j+1]);
+    length_left = distance(M_Point[i][j], M_Point[i-1][j]);
+    length_right = distance(M_Point[i][j], M_Point[i+1][j]);
 
-    gamma_top = Membrane_Point[i][j].rigidity_Top/Membrane_Point[i][j].m *(1 - Membrane_Point[i][j].Bond_length/ length_top);
-    gamma_bottom = Membrane_Point[i][j].rigidity_Bottom/Membrane_Point[i][j].m *(1 - Membrane_Point[i][j].Bond_length/ length_bottom);
-    gamma_left = Membrane_Point[i][j].rigidity_Left/Membrane_Point[i][j].m *(1 - Membrane_Point[i][j].Bond_length/ length_left);
-    gamma_right = Membrane_Point[i][j].rigidity_Right/Membrane_Point[i][j].m *(1 - Membrane_Point[i][j].Bond_length/ length_right);
+    gamma_top = M_Point[i][j].rigidity_Top/M_Point[i][j].m *(1 - M_Point[i][j].Bond_length/ length_top);
+    gamma_bottom = M_Point[i][j].rigidity_Bottom/M_Point[i][j].m *(1 - M_Point[i][j].Bond_length/ length_bottom);
+    gamma_left = M_Point[i][j].rigidity_Left/M_Point[i][j].m *(1 - M_Point[i][j].Bond_length/ length_left);
+    gamma_right = M_Point[i][j].rigidity_Right/M_Point[i][j].m *(1 - M_Point[i][j].Bond_length/ length_right);
 
     //расчет новых скоростей течки
-    Membrane_Point[i][j].Vx += gamma_top * (Membrane_Point[i][j-1].x  - Membrane_Point[i][j].x) +
-                               gamma_bottom * (Membrane_Point[i][j+1].x - Membrane_Point[i][j].x) +
-                               gamma_left * (Membrane_Point[i-1][j].x - Membrane_Point[i][j].x) +
-                               gamma_right * (Membrane_Point[i+1][j].x - Membrane_Point[i][j].x);
+    M_Point[i][j].Vx += gamma_top * (M_Point[i][j-1].x - M_Point[i][j].x) +
+                               gamma_bottom * (M_Point[i][j+1].x - M_Point[i][j].x) +
+                               gamma_left * (M_Point[i-1][j].x - M_Point[i][j].x) +
+                               gamma_right * (M_Point[i+1][j].x - M_Point[i][j].x);
 
-    Membrane_Point[i][j].Vy += gamma_top * (Membrane_Point[i][j-1].y  - Membrane_Point[i][j].y) +
-                               gamma_bottom * (Membrane_Point[i][j+1].y - Membrane_Point[i][j].y) +
-                               gamma_left * (Membrane_Point[i-1][j].y - Membrane_Point[i][j].y) +
-                               gamma_right * (Membrane_Point[i+1][j].y - Membrane_Point[i][j].y);
+    M_Point[i][j].Vy += gamma_top * (M_Point[i][j-1].y  - M_Point[i][j].y) +
+                               gamma_bottom * (M_Point[i][j+1].y - M_Point[i][j].y) +
+                               gamma_left * (M_Point[i-1][j].y - M_Point[i][j].y) +
+                               gamma_right * (M_Point[i+1][j].y - M_Point[i][j].y);
 
-    Membrane_Point[i][j].Vz += gamma_top * (Membrane_Point[i][j-1].z  - Membrane_Point[i][j].z) +
-                               gamma_bottom * (Membrane_Point[i][j+1].z - Membrane_Point[i][j].z) +
-                               gamma_left * (Membrane_Point[i-1][j].z - Membrane_Point[i][j].z) +
-                               gamma_right * (Membrane_Point[i+1][j].z - Membrane_Point[i][j].z);
+    M_Point[i][j].Vz += gamma_top * (M_Point[i][j-1].z  - M_Point[i][j].z) +
+                               gamma_bottom * (M_Point[i][j+1].z - M_Point[i][j].z) +
+                               gamma_left * (M_Point[i-1][j].z - M_Point[i][j].z) +
+                               gamma_right * (M_Point[i+1][j].z - M_Point[i][j].z);
 }
 void Membrane::Move_membrane() {
     for(int i = 1; i < N+1; i++){
@@ -248,7 +252,7 @@ void Membrane::Move_membrane() {
 
     for(int i = 1; i < N+1; i++){
         for(int j = 1; j < M+1; j++){
-            Membrane_Point[i][j].move(Membrane_Point[i][j].Vx, Membrane_Point[i][j].Vy, Membrane_Point[i][j].Vz);
+            M_Point[i][j].move(M_Point[i][j].Vx, M_Point[i][j].Vy, M_Point[i][j].Vz);
         }
     }
 
@@ -273,9 +277,9 @@ void Membrane::Data_output (int T, Membrane* pWork){
     for(int t =0; t<T; t++){
         for(int i = 1; i< N+1; i++){
             for(int j = 1; j < M+1; j++){
-                Data <<Membrane_Point[i][j].x << '\n';         //Записываем координаты Х точек поле поворота
-                Data <<Membrane_Point[i][j].y << '\n';         //Записываем координаты У точек после поворота
-                Data <<Membrane_Point[i][j].z << '\n';       //Записываем координаты Z точек после поворота
+                Data <<M_Point[i][j].x << '\n';         //Записываем координаты Х точек поле поворота
+                Data <<M_Point[i][j].y << '\n';         //Записываем координаты У точек после поворота
+                Data <<M_Point[i][j].z << '\n';       //Записываем координаты Z точек после поворота
             }
         }
         (*pWork).Move_membrane();
@@ -291,12 +295,14 @@ void Membrane::Data_output (int T, Membrane* pWork){
 
 
 
-
+//матрица повората. Поврацивает координаты двумерного вектора
 void rotation(std::vector<std::vector <Point>>* v, int M, int N, float a, float b, float g) {
     // a, b, g --- angles
-    for (int i = 0; i < M; i++) {
-        for (int j = 0; j < N; j++) {
-            int x = (*v)[i][j].x, y = (*v)[i][j].y, z = (*v)[i][j].z;
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < M; j++) {
+            int x = (*v)[i][j].x;
+            int y = (*v)[i][j].y;
+            int z = (*v)[i][j].z;
             (*v)[i][j].x = (cos(a) * cos(g) - sin(a) * cos(b) * sin(g)) * x +
                            (-cos(a) * sin(g) - sin(a) * cos(b) * cos(g)) * y +
                            (sin(a) * sin(b)) * z;
