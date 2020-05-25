@@ -135,12 +135,13 @@ public:
     //начальное растояние между точками по X, Y, Z
     float initial_lengthX;
     float initial_lengthY;
+
     //float initial_lengthZ;
     // единица жестккости связи жесткость связи
     float rigidity;
+
     //двумерный вектор размера N+2 на M+2. крайние слои мембраны созданы для того, чтобы взимидействие граничных точек мембраны расчитывалось проще
     std::vector<std::vector <Point>> M_Point;
-
     //конструктор по умолчанию
     Membrane(){
         M = 3;
@@ -151,7 +152,8 @@ public:
         //initial_lengthZ = 100;
         rigidity = 1;
     }
-    //конструктос с задаваемыми размерами мембраны
+
+    //конструктор мембраны с квадратными ячейками и задаваемыми размерами мембраны
     Membrane(int N, int M){
         this->N = N;
         this->M = M;
@@ -162,8 +164,34 @@ public:
         rigidity = 1;
     }
 
+    //конструктор мембраны с прямоугольными ячейками задаваемого размера
+    Membrane(int N, int M, float initial_lengthX, float initial_lengthY){
+        this->N = N;
+        this->M = M;
+        //длинны и размеры по умолнчалию
+        this->initial_lengthX = initial_lengthX;
+        this->initial_lengthY = initial_lengthY;
+        //initial_lengthZ = 100;
+        rigidity = 1;
+    }
+
+    //конструктор мембраны с прямоугольными ячейками и жесткостью связи, которые задаются пользователем
+    Membrane(int N, int M, float initial_lengthX, float initial_lengthY, float rigidity){
+        this->N = N;
+        this->M = M;
+        //длинны и размеры по умолнчалию
+        this->initial_lengthX = initial_lengthX;
+        this->initial_lengthY = initial_lengthY;
+        //initial_lengthZ = 100;
+        this->rigidity = rigidity;
+    }
+
+
+
+
+
     // cоздание мембраны с размера N+2 на M+2 крайние слои пустыщки(жесткость связей их навна 0)
-    void membrane_creation();
+    void membrane_creation(float mass, float Bond_length);
     //метод взаимодействия точки со своим окружением
     void Dynamics(int i, int j);
     // изменение скарастей и координат мембраны
@@ -175,7 +203,7 @@ public:
 
 
 // cоздание мембраны с размера N+2 на M+2 крайние слои пустыщки
-void Membrane::membrane_creation() {
+void Membrane::membrane_creation(float mass, float Bond_length) {
 
     //создание двумерного вектора
     for (int i = 0; i < N+2; i++){
@@ -194,8 +222,12 @@ void Membrane::membrane_creation() {
         for(int j = 0; j < M+2; j++){
             // приведение мембраны в начальное состояние с начальным координатами
             M_Point[i][j].SetR(i*(initial_lengthX +5), j*(initial_lengthY+5), 0);
-            //Membrane_Point[i][j].SetM( 5); // присваимвание каждой точке macсу
-            M_Point[i][j].SerV(0,0,0); //начальное распределение скоростей
+            //начальное распределение скоростей
+            M_Point[i][j].SerV(0,0,0);
+            //массы точек
+            M_Point[i][j].m = mass;
+            //начальная длинна свяжей
+            M_Point[i][j].Bond_length= Bond_length;
         }
     }
 
@@ -380,8 +412,23 @@ int main() {
     std::cout<< "M =";
     std::cin >> M;
 
-    Membrane Work(N, M);
-    Work.membrane_creation();
+    float initial_lengthX, initial_lengthY, rigidity, mass, Bond_length;
+    std::cout<< "initial_lengthX =";
+    std::cin >> initial_lengthX;
+    std::cout<< "initial_lengthY =";
+    std::cin >> initial_lengthY;
+    std::cout<< "rigidity =";
+    std::cin >> rigidity;
+    std::cout<< "mass =";
+    std::cin >> mass;
+    std::cout<< "Bond_length =";
+    std::cin >> Bond_length;
+
+
+
+    //Membrane Work(N, M);
+    Membrane Work(N, M, initial_lengthX, initial_lengthY, rigidity);
+    Work.membrane_creation(mass, Bond_length);
     Membrane* pWork = &Work;
 
     //количество итераций
@@ -431,8 +478,8 @@ Point rotation(Point* v, float a, float b, float g, int N, int M, float initial_
                    (sin(b) * cos(g)) * new_v.y +
                    cos(b) * new_v.z;
     //возвращаем цент в начальное положение
-    new_v.x = new_v.x + ((N+1)*initial_lengthX)/2;
-    new_v.y = new_v.y + ((M+1)*initial_lengthY)/2;
+    new_v.x = new_v.x + ((N+4)*initial_lengthX)/2;
+    new_v.y = new_v.y + ((M+2)*initial_lengthY)/2;
 
     return new_v;
 
