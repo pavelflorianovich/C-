@@ -191,7 +191,7 @@ public:
 
 
     // cоздание мембраны с размера N+2 на M+2 крайние слои пустыщки(жесткость связей их навна 0)
-    void membrane_creation(float mass, float Bond_length, int k);
+    void membrane_creation(float mass, float Bond_length, int k, float v_central);
     //метод взаимодействия точки со своим окружением
     void Dynamics(int i, int j);
     // изменение скарастей и координат мембраны
@@ -207,12 +207,21 @@ public:
     void Coordinate_distribution_1(int i, int j, int k);
     //равномерное растяжение мемдраны в плоскости XY
     void Coordinate_distribution_2(int i, int j, int k);
+    //РАСПРЕДЕЛЕНИЕ СКОРОСТЕЙ
+    //нулевые начальные скорости
+    void Speed_distribution_0(int i, int j, int k);
+    //всем точкам присваивается скорость вдоль z
+    void Speed_distribution_1(int i, int j, float v_central);
+    //Точке по номеру kk присваивается скорость v_central вдоль оси z
+    void Speed_distribution_2(int i, int j, int k, float v_central);
+    //Точкам на k вертикали присваевается скорость v_central
+    void Membrane::Speed_distribution_3(int i, int j, int k, float v_central);
     //КОНЕЦ ТЕЛА КЛАССА
 };
 
 
 // cоздание мембраны с размера N+2 на M+2 крайние слои пустыщки
-void Membrane::membrane_creation(float mass, float Bond_length, int k) {
+void Membrane::membrane_creation(float mass, float Bond_length, int k, float v_central) {
 
     //создание двумерного вектора
     for (int i = 0; i < N+2; i++){
@@ -230,10 +239,16 @@ void Membrane::membrane_creation(float mass, float Bond_length, int k) {
     for (int i = 0; i < N+2; i++){
         for(int j = 0; j < M+2; j++){
             // приведение мембраны в начальное состояние с начальным координатами
-            Coordinate_distribution_1(i, j, k);
+            Coordinate_distribution_0(i, j);
+//            Coordinate_distribution_1(i, j, k);
+//            Coordinate_distribution_2(i, j, k);
 
             //начальное распределение скоростей
-            M_Point[i][j].SerV(0,0,0);
+//            Speed_distribution_0(i, j, k);
+//            Speed_distribution_1(i, j, k);
+            Speed_distribution_2(i, j, k, v_central);
+//            Speed_distribution_3(i, j, k, v_central);
+//
             //массы точек
             M_Point[i][j].m = mass;
             //начальная длинна свяжей
@@ -395,9 +410,12 @@ void Membrane::Data_output (int T, Membrane* pWork, float a, float b, float g){
 
 };
 
+//РАСПРЕДЕЛЕНИЕ КООРДИНАТ
+//Не растянутая мембрана
 void Membrane::Coordinate_distribution_0(int i, int j){
     M_Point[i][j].SetR(i*initial_lengthX, j*initial_lengthY, 0);
 };
+//поперечная волна. Сдвиг k ряда по Х вдоль
 void Membrane::Coordinate_distribution_1(int i, int j, int k){
     if(i == k){
         M_Point[i][j].SetR(i*initial_lengthX, j*initial_lengthY+5, 30);
@@ -405,16 +423,35 @@ void Membrane::Coordinate_distribution_1(int i, int j, int k){
         M_Point[i][j].SetR(i*initial_lengthX, j*initial_lengthY, 0);
     }
 };
+//равномерное растяжение мемдраны в плоскости XY
 void Membrane::Coordinate_distribution_2(int i, int j, int k){
     M_Point[i][j].SetR(i*(Bond_length+k), j*(Bond_length+k), 0);
 };
-
-
-
-
-
-
-
+//РАСПРЕДЕЛЕНИЕ СКОРОСТЕЙ
+//нулевые начальные скорости
+void Membrane::Speed_distribution_0(int i, int j, int k){
+    M_Point[i][j].SerV(0,0,0);
+};
+//всем точкам присваивается скорость v_cenral вдоль z
+void Membrane::Speed_distribution_1(int i, int j, float v_central){
+    M_Point[i][j].SerV(0,0, v_central);
+};
+//Точкt kk присваевается скорость v_central
+void Membrane::Speed_distribution_2(int i, int j, int k, float v_central){
+    if(i == k && j == k){
+        M_Point[i][j].SerV(0,0, v_central);
+    } else {
+        M_Point[i][j].SerV(0,0,0);
+    }
+};
+//Точкам на k вертикали (вдоль оси Y) присваевается скорость v_central
+void Membrane::Speed_distribution_3(int i, int j, int k, float v_central){
+    if(i == k){
+        M_Point[i][j].SerV(0,0, v_central);
+    } else {
+        M_Point[i][j].SerV(0,0,0);
+    }
+};
 
 
 
@@ -440,7 +477,7 @@ int main() {
     std::cout<< "k =";
     std::cin >> k;
 
-    float initial_lengthX, initial_lengthY, rigidity, mass, Bond_length;
+    float initial_lengthX, initial_lengthY, rigidity, mass, Bond_length, v_central;
     std::cout<< "initial_lengthX =";
     std::cin >> initial_lengthX;
     std::cout<< "initial_lengthY =";
@@ -451,12 +488,14 @@ int main() {
     std::cin >> mass;
     std::cout<< "Bond_length =";
     std::cin >> Bond_length;
+    std::cout<< "v_central =";
+    std::cin >> v_central;
 
 
 
     //Membrane Work(N, M);
     Membrane Work(N, M, initial_lengthX, initial_lengthY, rigidity);
-    Work.membrane_creation(mass, Bond_length);
+    Work.membrane_creation(mass, Bond_length, k, v_central);
     Membrane* pWork = &Work;
 
     //количество итераций
