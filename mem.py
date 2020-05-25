@@ -86,7 +86,7 @@ for i in range(row):
 for i in range(Time):
     modeling()
     canv.update()
-    time.sleep(0.02)
+    time.sleep(0.5)
     
 
     

@@ -2,41 +2,51 @@
 #include <vector>
 #include <cmath>
 #include <fstream>
+
 #define PI 3.14159265
 //предполагается сисема координат с нулем в левом верхнем углу экрана
 //ось Х  - горизонтальна, направлена в право
 //ось Y - вертикальна, направлена вниз
 
-class Point  {
+class Point {
 //private: //модификатор доступа (https://www.youtube.com/watch?v=6udKffus77A&list=PLQOaTSbfxUtBm7DxblJZShqBQnBAVzlXX&index=31)
+//делаем модификоторы доступа все изначально публичными. Если нужно, то можно изменить, но пока в этом не вижу смысла
 public:
+    //координаты точки
     float x;
     float y;
     float z;
+    // масса точки
     float m;
+    //компоненты скорости точки
     float Vx;
     float Vy;
     float Vz;
+    // жесткости связей в разных направлениях
     float rigidity_Top;
     float rigidity_Bottom;
     float rigidity_Left;
     float rigidity_Right;
+    //длинна связи в свободном ненатянутом состоянии
     float Bond_length;
 
-public:                                                     //модификатор доступа
-    Point() {                                                //другой конструктор, по умолчанию
+    //конструктор , по умолчанию
+    Point() {
+        //координаты и компоненты скорости нулевые
         x = 0;
         y = 0;
         z = 0;
-        m = 10;
         Vx = 0;
         Vy = 0;
         Vz = 0;
-        rigidity_Top = 5;
-        rigidity_Bottom = 5;
-        rigidity_Left = 5;
-        rigidity_Right = 5;
-        Bond_length = 95;
+        //масска и жесткости связей единичные
+        m = 1;
+        rigidity_Top = 1;
+        rigidity_Bottom = 1;
+        rigidity_Left = 1;
+        rigidity_Right = 1;
+        //длинна связи в нерастянутом состоянии по умолчанию единица
+        Bond_length = 100;
     }
 
 //    Point(float x, float y, float z, float m,
@@ -49,66 +59,50 @@ public:                                                     //модификат
 //        this->Vy = Vy;
 //        this->Vz = Vz;
 //    }
-
 //    ~Point() {                                               //диструктор. Может быть только один.
 //        // Вызывается, при выходе из зоны видимити {}
 //        // полезен для очистки динамической памяти
 //    }
+// ключевое слово this (https://www.youtube.com/watch?v=2rv_s1j5pHE&list=PLQOaTSbfxUtBm7DxblJZShqBQnBAVzlXX&index=10)
 
-//    float GetX() {
-//        return x;
-//    }
-//    float GeY() {
-//        return y;
-//    }
-//    float GetZ() {
-//        return z;
-//    }
-//
-//    // ключевое слово this (https://www.youtube.com/watch?v=2rv_s1j5pHE&list=PLQOaTSbfxUtBm7DxblJZShqBQnBAVzlXX&index=10)
-////    void light(float initial_length); //изменение начальной длинны пружины (связи)
-    void SetR(float x, float y, float z); //изменение коорнинат точки
-    void SerV(float Vx, float Vy, float Vz); //изменение компонент скорости точнки
-    void SetRigidity(float rigidity_Top, float rigidity_Bottom, float rigidity_Left, float rigidity_Right); //изменение жесткостей пружин (связей)
-    void SetM(float m);                      //реализация метода вне класса. Полезно если класс большой
-    float distance(Point a, Point b); // метод расчитывает растояние между двумя тояками
-    void move(float VX, float Vy, float Vz);
-
-//    friend void ChangeM(Point& rel);     //Реализация дужественной функции
-    //для коректного копирования объекта класса нужно написать конструктор копиравани
-
-
-//void Point::SetM(float m)
-//{                                         //реализация метода вне класса. Полезно если класс большой
-//    this->m = m;я (https://www.youtube.com/watch?v=3x9nd6Tm7Pc&list=PLQOaTSbfxUtBm7DxblJZShqBQnBAVzlXX&index=11)
+    //изменение коорнинат точки
+    void SetR(float x, float y, float z);
+    //изменение компонент скорости точнки
+    void SerV(float Vx, float Vy, float Vz);
+    //изменение жесткостей пружин (связей)
+    void SetRigidity(float rigidity_Top, float rigidity_Bottom, float rigidity_Left, float rigidity_Right);
+    // метод расчитывает растояние между двумя тояками a и b
+    float distance(Point a, Point b);
+    //метод расчитывает новые координаты точки: x += Vx...
+    void move(float Vx, float Vy, float Vz);
+    //КОНЕЦ ТЕЛА КЛАССА
 };
-//}
-//
 
-void Point::SetR(float x1, float y1, float z1) { //изменение коорнинат точки
-    x = x1;                                        // ключевое слово this (https://www.youtube.com/watch?v=2rv_s1j5pHE&list=PLQOaTSbfxUtBm7DxblJZShqBQnBAVzlXX&index=10)
-    y = y1;
-    z = z1;
+//изменение коорнинат точки
+void Point::SetR(float x, float y, float z) { //изменение коорнинат точки
+    this->x = x;                                        // ключевое слово this (https://www.youtube.com/watch?v=2rv_s1j5pHE&list=PLQOaTSbfxUtBm7DxblJZShqBQnBAVzlXX&index=10)
+    this->y = y;
+    this->z = z;
 }
-
-void Point::SerV(float Vx, float Vy, float Vz){ //изменение компонент скорости точки
+//изменение компонент скорости точки
+void Point::SerV(float Vx, float Vy, float Vz){
     this->Vx = Vx;
     this->Vy = Vy;
     this->Vz = Vz;
 }
-
-void Point::SetRigidity(float rigidity_Top, float rigidity_Bottom, float rigidity_Left, float rigidity_Right) { //изменение жесткости связи (пружины)
+//изменение жесткости связи (пружины)
+void Point::SetRigidity(float rigidity_Top, float rigidity_Bottom, float rigidity_Left, float rigidity_Right) {
     this->rigidity_Top = rigidity_Top;
     this->rigidity_Bottom = rigidity_Bottom;
     this->rigidity_Right = rigidity_Right;
     this->rigidity_Left = rigidity_Left;
 }
-
+// метод расчитывает растояние между двумя тояками a и b
 float Point::distance(Point a, Point b){ // метод расчитывает растояние между двумя тояками
     return sqrt(pow((a.x - b.x),2) + pow((a.y - b.y),2) + pow((a.z - b.z),2));
 };
-
-void Point::move(float VX, float Vy, float Vz){
+//метод расчитывает новые координаты точки: x += Vx...
+void Point::move(float Vx, float Vy, float Vz){
     x += Vx;
     y += Vy;
     z += Vz;
@@ -118,37 +112,35 @@ void Point::move(float VX, float Vy, float Vz){
 
 
 
-//void ChangeM(Point& rel) {             //Реализация дужественной функции (https://www.youtube.com/watch?v=Ic19I0kcBnU&list=PLQOaTSbfxUtBm7DxblJZShqBQnBAVzlXX&index=19)
-//    rel.m += 1;                          //Одна функция может быть дужественной к нескольким классам
-//    //дружестенная функция имеет доступ ко всем объектам класса (не зависимо от расположения)
-//}
 
 
 
 
 
-
-
-    class Membrane : public Point
-        // класс мембраны
+// класс мембрана наследуется от класса Point (хотя наверное это нигде не используется, поэтому его можно убрать)
+class Membrane : public Point
 {
 public:
     //разметры мембраны
     int N; //размер по Х
     int M; //размер по Y
-    float initial_lengthX = 100; //начальное растояние между точками по X
-    float initial_lengthY = 100; //начальное растояние между точками по Y
-    //float initial_lengthZ; //начальное растояние между точками по Z
-    float rigidity =5; // жесткость связи
+    //начальное растояние между точками по X, Y, Z
+    float initial_lengthX =100;
+    float initial_lengthY = 100;
+    //float initial_lengthZ;
+    // единица жестккости связи жесткость связи
+    float rigidity =1;
 
     std::vector<std::vector <Point>> Membrane_Point;
 
     Membrane(){ //конструктор по умолчанию
         M = 3;
         N = 3;
-        initial_lengthY = 5;
-        initial_lengthX = 5;
-        rigidity = 20;
+        //длинны и размеры по умолнчалию
+        initial_lengthY = 100;
+        initial_lengthX = 100;
+        //initial_lengthZ = 100;
+        rigidity = 1;
     }
 
     Membrane(int N, int M){ //конструктос с задаваемыми размерами мембраны
@@ -163,7 +155,8 @@ public:
     Point Rotation (Point a, float ux, float uy, float uz);
 };
 
-void Membrane::membrane_creation() { // cоздание мембраны с размера N+2 на M+2 крайние слои пустыщки
+// cоздание мембраны с размера N+2 на M+2 крайние слои пустыщки
+void Membrane::membrane_creation() {
     for (int i = 0; i < N+2; i++){
         std::vector<Point> temp;
         for(int j = 0; j < M+2; j++){
@@ -291,19 +284,37 @@ void Membrane::Data_output (int T, Membrane* pWork){
     Data.close(); //Закрываем файл
 
 };
-//Point Membrane::Rotation(Point a, float ux, float uy, float uz){ //alpha - ux, beta - uy, gamma - uz
-//    Point res;
-////    std::cout<< res.x<< res.y << res.z << std::endl;
-////    std::cout<<a.x<< ' '<< a.y << ' '<<a.z<< std::endl;
-////    res.x = a.x*(cos(ux)*cos(uz)-sin(ux)*cos(uy)*sin(uz)) + a.y*(-cos(ux)*sin(uz)-sin(ux)*cos(uy)*cos(uz)) + a.z*sin(ux)*sin(uy);
-////    res.y = a.x*(sin(ux)*cos(uz)+cos(ux)*cos(uy)*sin(uz)) + a.y*(-sin(uz)*sin(uz) + cos(ux)*cos(uy)*cos(uz)) - a.z*cos(ux)*cos(uy);
-////    res.z = a.x*sin(uy)*sin(uz) + sin(uy)*cos(uz)*a.y  + cos(uy)*a.z;
-//    res.x = a.x;
-//    res.y = a.y;
-//    res.z = a.z;
-//    std::cout<< res.x<< ' '<<res.y <<' '<< res.z << std::endl;
-//    return res;
-//}
+
+
+
+
+
+
+
+
+void rotation(std::vector<std::vector <Point>>* v, int M, int N, float a, float b, float g) {
+    // a, b, g --- angles
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < N; j++) {
+            int x = (*v)[i][j].x, y = (*v)[i][j].y, z = (*v)[i][j].z;
+            (*v)[i][j].x = (cos(a) * cos(g) - sin(a) * cos(b) * sin(g)) * x +
+                           (-cos(a) * sin(g) - sin(a) * cos(b) * cos(g)) * y +
+                           (sin(a) * sin(b)) * z;
+            (*v)[i][j].y = (sin(a) * cos(g) + cos(a) * cos(b) * sin(g)) * x +
+                           (-sin(a) * sin(g) + cos(a) * cos(b) * cos(g)) * y +
+                           (-cos(a) * sin(b)) * z;
+            (*v)[i][j].z = (sin(b) * sin(g)) * x +
+                           (sin(b) * cos(g)) * y +
+                           cos(b) * z;
+        }
+    }
+}
+
+
+
+
+
+
 
 
 
@@ -327,8 +338,6 @@ int main() {
     Membrane* pWork = &Work;
 
     Work.Data_output (T, pWork);
-
-
 
     return 0;
 }
