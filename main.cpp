@@ -5,8 +5,10 @@
 
 #define PI 3.14159265
 //предполагается сисема координат с нулем в левом верхнем углу экрана
-//ось Х  - горизонтальна, направлена в право
+//ось Х - горизонтальна, направлена в право
 //ось Y - вертикальна, направлена вниз
+//ось Z - направлена за экра
+//оси образуют правую тройку
 
 class Point;
 class Membrane;
@@ -200,29 +202,62 @@ void Membrane::membrane_creation() {
     // задание жесткостей свяжей для каждой точки
     for (int i = 1; i < N+1; i++){
         for(int j = 1; j < M+1; j++){
-            //крайние случаи углы
-            if(i == 1 && j == 1){
-                M_Point[i][j].SetRigidity(0, rigidity, 0, rigidity);
-            } else if( i == N && j == 1){
-                M_Point[i][j].SetRigidity(0, rigidity, rigidity, 0);
-            } else if (i == 1 && j == M){
-                M_Point[i][j].SetRigidity(rigidity, 0, 0, rigidity);
-            }else if ( i == N && j == M){
-                M_Point[i][j].SetRigidity(rigidity, 0, rigidity, 0);
+            //если не вырожденый случай
+            if(M != 1 && N != 1){
+                //крайние случаи углы
+                if(i == 1 && j == 1){
+                    M_Point[i][j].SetRigidity(0, rigidity, 0, rigidity);
+                } else if( i == N && j == 1){
+                    M_Point[i][j].SetRigidity(0, rigidity, rigidity, 0);
+                } else if (i == 1 && j == M){
+                    M_Point[i][j].SetRigidity(rigidity, 0, 0, rigidity);
+                }else if ( i == N && j == M){
+                    M_Point[i][j].SetRigidity(rigidity, 0, rigidity, 0);
+                }
+                    //крайние случаи. Края
+                else if ( i == 1 ){
+                    M_Point[i][j].SetRigidity(rigidity, rigidity, 0, rigidity);
+                }else if ( i == N){
+                    M_Point[i][j].SetRigidity(rigidity, rigidity, rigidity, 0);
+                }else if ( j == 1){
+                    M_Point[i][j].SetRigidity(0, rigidity, rigidity, rigidity);
+                }else if ( j == M){
+                    M_Point[i][j].SetRigidity(rigidity, 0, rigidity, rigidity);
+                }
+                    //внутренние точки мембраны
+                else{
+                    M_Point[i][j].SetRigidity(rigidity, rigidity, rigidity, rigidity);
+                }
             }
-            //крайние случаи. Края
-            else if ( i == 1 ){
-                M_Point[i][j].SetRigidity(rigidity, rigidity, 0, rigidity);
-            }else if ( i == N){
-                M_Point[i][j].SetRigidity(rigidity, rigidity, rigidity, 0);
-            }else if ( j == 1){
-                M_Point[i][j].SetRigidity(0, rigidity, rigidity, rigidity);
-            }else if ( j == M){
-                M_Point[i][j].SetRigidity(rigidity, 0, rigidity, rigidity);
+            //вырожденный по Х случай (N = 1)
+            else if (M != 1 && N == 1) {
+                //крайние случаи углы
+                if (j == 1) {
+                    M_Point[i][j].SetRigidity(0, rigidity, 0, 0);
+                } else if (j == M) {
+                    M_Point[i][j].SetRigidity(rigidity, 0, 0, 0);
+                }
+                    //крайние случаи. Края
+                else {
+                    M_Point[i][j].SetRigidity(rigidity, rigidity, 0, 0);
+                }
             }
-            //внутренние точки мембраны
-            else{
-                M_Point[i][j].SetRigidity(rigidity, rigidity, rigidity, rigidity);
+            //вырожденный по Y случай (M = 1)
+            else if (M == 1 && N != 1) {
+                //крайние случаи углы
+                if (i == 1) {
+                    M_Point[i][j].SetRigidity(0, 0, 0,  rigidity);
+                } else if (i == N) {
+                    M_Point[i][j].SetRigidity(0, 0,  rigidity, 0);
+                }
+                    //крайние случаи. Края
+                else {
+                    M_Point[i][j].SetRigidity(0, 0,  rigidity,  rigidity);
+                }
+            }
+            //точка - вырожденая мембрана по всем направлениям
+            else {
+                M_Point[i][j].SetRigidity(0, 0, 0,  0);
             }
         }
     }
@@ -356,10 +391,13 @@ int main() {
 
     //углы поворота
     float a, b, g;
+    //угол поворота вокруг оси Z
     std::cout<< "angle a =";
     std::cin>>a;
+    //угол поворота вокруг оси X
     std::cout<< "angle b =";
     std::cin>>b;
+    //угол поворота вокруг оси Y
     std::cout<< "angle g =";
     std::cin>>g;
 
@@ -374,6 +412,9 @@ int main() {
 //матрица повората. Поворачивает координаты точки
 Point rotation(Point* v, float a, float b, float g) {
     // a, b, g --- angles
+    //угол поворота вокруг оси Z
+    //угол поворота вокруг оси X
+    //угол поворота вокруг оси Y
     Point new_v;
     new_v.x = (cos(a) * cos(g) - sin(a) * cos(b) * sin(g)) * (*v).x +
                    (-cos(a) * sin(g) - sin(a) * cos(b) * cos(g)) * (*v).y +
