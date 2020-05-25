@@ -111,7 +111,7 @@ void Point::move(float Vx, float Vy, float Vz){
 
 
 
-
+void rotation(std::vector<std::vector <Point>>* v, int N, int M, float a, float b, float g);
 
 
 
@@ -157,7 +157,7 @@ public:
     void membrane_creation(); // cоздание мембраны с размера N+2 на M+2 крайние слои пустыщки(жесткость связей их навна 0)
     void Dynamics(int i, int j); //метод взаимодействия точки со своим окружением
     void Move_membrane(); // изменение скарастей и координат мембраны
-    void Data_output (int T, Membrane* pWork); //вывод данных
+    void Data_output (int T, Membrane* pWork, float a, float b, float g); //вывод данных
     //КОНЕЦ ТЕЛА КЛАССА
 };
 
@@ -267,12 +267,14 @@ void Membrane::Move_membrane() {
 //    }
 
 };
-void Membrane::Data_output (int T, Membrane* pWork){
+void Membrane::Data_output (int T, Membrane* pWork, float a, float b, float g){
     std::ofstream Data("H:\\NewProject\\Data.txt", std::ios_base::trunc);
 
     Data << T << '\n';         //Записываем количество итераций
     Data << M << '\n';         //Записываем размеры
     Data << N << '\n';
+
+    rotation(&M_Point, N, M, a, b, g);
 
     for(int t =0; t<T; t++){
         for(int i = 1; i< N+1; i++){
@@ -296,7 +298,7 @@ void Membrane::Data_output (int T, Membrane* pWork){
 
 
 //матрица повората. Поврацивает координаты двумерного вектора
-void rotation(std::vector<std::vector <Point>>* v, int M, int N, float a, float b, float g) {
+void rotation(std::vector<std::vector <Point>>* v, int N, int M, float a, float b, float g) {
     // a, b, g --- angles
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < M; j++) {
@@ -342,8 +344,16 @@ int main() {
     std::cin >> T;
 
     Membrane* pWork = &Work;
+    float a, b, g;
 
-    Work.Data_output (T, pWork);
+    std::cout<< "angle a =";
+    std::cin>>a;
+    std::cout<< "angle b =";
+    std::cin>>b;
+    std::cout<< "angle g =";
+    std::cin>>g;
+
+    Work.Data_output (T, pWork, a, b, g);
 
     return 0;
 }
