@@ -191,19 +191,28 @@ public:
 
 
     // cоздание мембраны с размера N+2 на M+2 крайние слои пустыщки(жесткость связей их навна 0)
-    void membrane_creation(float mass, float Bond_length);
+    void membrane_creation(float mass, float Bond_length, int k);
     //метод взаимодействия точки со своим окружением
     void Dynamics(int i, int j);
     // изменение скарастей и координат мембраны
     void Move_membrane();
     //вывод данных
     void Data_output (int T, Membrane* pWork, float a, float b, float g);
+
+    //НАЧАЛЬНЫЕ УСЛОВИЯ
+    //РАСПРЕДЕЛЕНИЯ КООРДИНАТ
+    //невозмущенная мембрана
+    void Coordinate_distribution_0(int i, int j);
+    //поперечная волна. Сдвиг k ряда по Х вдоль
+    void Coordinate_distribution_1(int i, int j, int k);
+    //равномерное растяжение мемдраны в плоскости XY
+    void Coordinate_distribution_2(int i, int j, int k);
     //КОНЕЦ ТЕЛА КЛАССА
 };
 
 
 // cоздание мембраны с размера N+2 на M+2 крайние слои пустыщки
-void Membrane::membrane_creation(float mass, float Bond_length) {
+void Membrane::membrane_creation(float mass, float Bond_length, int k) {
 
     //создание двумерного вектора
     for (int i = 0; i < N+2; i++){
@@ -221,7 +230,8 @@ void Membrane::membrane_creation(float mass, float Bond_length) {
     for (int i = 0; i < N+2; i++){
         for(int j = 0; j < M+2; j++){
             // приведение мембраны в начальное состояние с начальным координатами
-            M_Point[i][j].SetR(i*(initial_lengthX +5), j*(initial_lengthY+5), 0);
+            Coordinate_distribution_1(i, j, k);
+
             //начальное распределение скоростей
             M_Point[i][j].SerV(0,0,0);
             //массы точек
@@ -385,6 +395,19 @@ void Membrane::Data_output (int T, Membrane* pWork, float a, float b, float g){
 
 };
 
+void Membrane::Coordinate_distribution_0(int i, int j){
+    M_Point[i][j].SetR(i*initial_lengthX, j*initial_lengthY, 0);
+};
+void Membrane::Coordinate_distribution_1(int i, int j, int k){
+    if(i == k){
+        M_Point[i][j].SetR(i*initial_lengthX, j*initial_lengthY+5, 30);
+    } else{
+        M_Point[i][j].SetR(i*initial_lengthX, j*initial_lengthY, 0);
+    }
+};
+void Membrane::Coordinate_distribution_2(int i, int j, int k){
+    M_Point[i][j].SetR(i*(Bond_length+k), j*(Bond_length+k), 0);
+};
 
 
 
@@ -411,6 +434,11 @@ int main() {
     std::cin >> N;
     std::cout<< "M =";
     std::cin >> M;
+
+    //специально число для того, чтобы задавать разные распределения по координатам и скоростям
+    int k;
+    std::cout<< "k =";
+    std::cin >> k;
 
     float initial_lengthX, initial_lengthY, rigidity, mass, Bond_length;
     std::cout<< "initial_lengthX =";
@@ -478,8 +506,8 @@ Point rotation(Point* v, float a, float b, float g, int N, int M, float initial_
                    (sin(b*PI/180) * cos(g*PI/180)) * new_v.y +
                    cos(b*PI/180) * new_v.z;
     //возвращаем цент в начальное положение
-    new_v.x = new_v.x + ((2* N)*initial_lengthX)/2;
-    new_v.y = new_v.y + ((2*M)*initial_lengthY)/2;
+    new_v.x = new_v.x + ((N+1)*initial_lengthX)/2 + 50;
+    new_v.y = new_v.y + ((M+1)*initial_lengthY)/2 + 50;
 
     return new_v;
 
