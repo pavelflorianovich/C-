@@ -8,6 +8,10 @@
 //ось Х  - горизонтальна, направлена в право
 //ось Y - вертикальна, направлена вниз
 
+class Point;
+class Membrane;
+void rotation(std::vector<std::vector <Point>>* v, int N, int M, float a, float b, float g);
+
 class Point {
 //private: //модификатор доступа (https://www.youtube.com/watch?v=6udKffus77A&list=PLQOaTSbfxUtBm7DxblJZShqBQnBAVzlXX&index=31)
 //делаем модификоторы доступа все изначально публичными. Если нужно, то можно изменить, но пока в этом не вижу смысла
@@ -111,7 +115,7 @@ void Point::move(float Vx, float Vy, float Vz){
 
 
 
-void rotation(std::vector<std::vector <Point>>* v, int N, int M, float a, float b, float g);
+
 
 
 
@@ -154,16 +158,22 @@ public:
         rigidity = 1;
     }
 
-    void membrane_creation(); // cоздание мембраны с размера N+2 на M+2 крайние слои пустыщки(жесткость связей их навна 0)
-    void Dynamics(int i, int j); //метод взаимодействия точки со своим окружением
-    void Move_membrane(); // изменение скарастей и координат мембраны
-    void Data_output (int T, Membrane* pWork, float a, float b, float g); //вывод данных
+    // cоздание мембраны с размера N+2 на M+2 крайние слои пустыщки(жесткость связей их навна 0)
+    void membrane_creation();
+    //метод взаимодействия точки со своим окружением
+    void Dynamics(int i, int j);
+    // изменение скарастей и координат мембраны
+    void Move_membrane();
+    //вывод данных
+    void Data_output (int T, Membrane* pWork, float a, float b, float g);
     //КОНЕЦ ТЕЛА КЛАССА
 };
 
 
 // cоздание мембраны с размера N+2 на M+2 крайние слои пустыщки
 void Membrane::membrane_creation() {
+
+    //создание двумерного вектора
     for (int i = 0; i < N+2; i++){
         std::vector<Point> temp;
         for(int j = 0; j < M+2; j++){
@@ -172,11 +182,15 @@ void Membrane::membrane_creation() {
         M_Point.push_back(temp);
     }
 
-    for (int i = 1; i < N+1; i++){
-        for(int j = 1; j < M+1; j++){
-            M_Point[i][j].SetR(i*initial_lengthX, j*initial_lengthY, 0); // приведение мембраны в начальное состояние с начальным координатами
+    //заполнение мембраны (двумерного вектора) точками расположеными в форме прямоугольной сетки.
+    //сетка дежит в
+    //В принцыме начальное расположене очек можно задавать произвольным
+    for (int i = 0; i < N+2; i++){
+        for(int j = 0; j < M+2; j++){
+            // приведение мембраны в начальное состояние с начальным координатами
+            M_Point[i][j].SetR(i*initial_lengthX, j*initial_lengthY, 0);
             //Membrane_Point[i][j].SetM( 5); // присваимвание каждой точке macсу
-            M_Point[i][j].SerV(0,0,100); //начальное распределение скоростей
+            M_Point[i][j].SerV(0,0,0); //начальное распределение скоростей
         }
     }
 
@@ -270,10 +284,13 @@ void Membrane::Move_membrane() {
 void Membrane::Data_output (int T, Membrane* pWork, float a, float b, float g){
     std::ofstream Data("H:\\NewProject\\Data.txt", std::ios_base::trunc);
 
-    Data << T << '\n';         //Записываем количество итераций
-    Data << M << '\n';         //Записываем размеры
+    //Записываем количество итераций
+    Data << T << '\n';
+    //Записываем размеры мембраны
+    Data << M << '\n';
     Data << N << '\n';
 
+    //поворачиваем
     rotation(&M_Point, N, M, a, b, g);
 
     for(int t =0; t<T; t++){
@@ -297,6 +314,53 @@ void Membrane::Data_output (int T, Membrane* pWork, float a, float b, float g){
 
 
 
+
+
+
+
+
+
+
+
+
+
+int main() {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(nullptr);
+
+    //размеры мембраны
+    int N, M;
+    std::cout<< "N =";;
+    std::cin >> N;
+    std::cout<< "M =";;
+    std::cin >> M;
+
+    Membrane Work(N, M);
+    Work.membrane_creation();
+    Membrane* pWork = &Work;
+
+    //количество итераций
+    int T;
+    std::cout<< "T =";;
+    std::cin >> T;
+
+    //углы поворота
+    float a, b, g;
+    std::cout<< "angle a =";
+    std::cin>>a;
+    std::cout<< "angle b =";
+    std::cin>>b;
+    std::cout<< "angle g =";
+    std::cin>>g;
+
+    //динамика, поворот и запись файла
+    Work.Data_output (T, pWork, a, b, g);
+
+    return 0;
+}
+
+
+
 //матрица повората. Поврацивает координаты двумерного вектора
 void rotation(std::vector<std::vector <Point>>* v, int N, int M, float a, float b, float g) {
     // a, b, g --- angles
@@ -316,44 +380,4 @@ void rotation(std::vector<std::vector <Point>>* v, int N, int M, float a, float 
                            cos(b) * z;
         }
     }
-}
-
-
-
-
-
-
-
-
-
-int main() {
-    std::ios_base::sync_with_stdio(false);
-    std::cin.tie(nullptr);
-
-    int N, M; //размеры мембраны
-    std::cout<< "N =";;
-    std::cin >> N;
-    std::cout<< "M =";;
-    std::cin >> M;
-
-    Membrane Work(N, M);
-    Work.membrane_creation();
-
-    int T;
-    std::cout<< "T =";;
-    std::cin >> T;
-
-    Membrane* pWork = &Work;
-    float a, b, g;
-
-    std::cout<< "angle a =";
-    std::cin>>a;
-    std::cout<< "angle b =";
-    std::cin>>b;
-    std::cout<< "angle g =";
-    std::cin>>g;
-
-    Work.Data_output (T, pWork, a, b, g);
-
-    return 0;
 }
