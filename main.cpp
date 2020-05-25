@@ -191,7 +191,7 @@ void Membrane::membrane_creation() {
     for (int i = 0; i < N+2; i++){
         for(int j = 0; j < M+2; j++){
             // приведение мембраны в начальное состояние с начальным координатами
-            M_Point[i][j].SetR(i*initial_lengthX, j*initial_lengthY, 0);
+            M_Point[i][j].SetR(i*(initial_lengthX +5), j*(initial_lengthY+5), 0);
             //Membrane_Point[i][j].SetM( 5); // присваимвание каждой точке macсу
             M_Point[i][j].SerV(0,0,0); //начальное распределение скоростей
         }
@@ -203,9 +203,9 @@ void Membrane::membrane_creation() {
             //крайние случаи углы
             if(i == 1 && j == 1){
                 M_Point[i][j].SetRigidity(0, rigidity, 0, rigidity);
-            } else if(i == 1 && j == M){
+            } else if( i == N && j == 1){
                 M_Point[i][j].SetRigidity(0, rigidity, rigidity, 0);
-            } else if ( i == N && j == 1){
+            } else if (i == 1 && j == M){
                 M_Point[i][j].SetRigidity(rigidity, 0, 0, rigidity);
             }else if ( i == N && j == M){
                 M_Point[i][j].SetRigidity(rigidity, 0, rigidity, 0);
