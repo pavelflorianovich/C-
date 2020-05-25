@@ -12,7 +12,7 @@
 
 class Point;
 class Membrane;
-Point rotation(Point* v, float a, float b, float g);
+Point rotation(Point* v, float a, float b, float g, int N, int M, float initial_lengthX, float initial_lengthY);
 
 
 class Point {
@@ -214,7 +214,7 @@ void Membrane::membrane_creation() {
                 }else if ( i == N && j == M){
                     M_Point[i][j].SetRigidity(rigidity, 0, rigidity, 0);
                 }
-                    //крайние случаи. Края
+                //крайние случаи. Края
                 else if ( i == 1 ){
                     M_Point[i][j].SetRigidity(rigidity, rigidity, 0, rigidity);
                 }else if ( i == N){
@@ -224,33 +224,33 @@ void Membrane::membrane_creation() {
                 }else if ( j == M){
                     M_Point[i][j].SetRigidity(rigidity, 0, rigidity, rigidity);
                 }
-                    //внутренние точки мембраны
+                //внутренние точки мембраны
                 else{
                     M_Point[i][j].SetRigidity(rigidity, rigidity, rigidity, rigidity);
                 }
             }
             //вырожденный по Х случай (N = 1)
             else if (M != 1 && N == 1) {
-                //крайние случаи углы
+                //крайние случаи
                 if (j == 1) {
                     M_Point[i][j].SetRigidity(0, rigidity, 0, 0);
                 } else if (j == M) {
                     M_Point[i][j].SetRigidity(rigidity, 0, 0, 0);
                 }
-                    //крайние случаи. Края
+                //внутренние точки
                 else {
                     M_Point[i][j].SetRigidity(rigidity, rigidity, 0, 0);
                 }
             }
             //вырожденный по Y случай (M = 1)
             else if (M == 1 && N != 1) {
-                //крайние случаи углы
+                //крайние случаи
                 if (i == 1) {
                     M_Point[i][j].SetRigidity(0, 0, 0,  rigidity);
                 } else if (i == N) {
                     M_Point[i][j].SetRigidity(0, 0,  rigidity, 0);
                 }
-                    //крайние случаи. Края
+                //внутренние точки
                 else {
                     M_Point[i][j].SetRigidity(0, 0,  rigidity,  rigidity);
                 }
@@ -340,7 +340,7 @@ void Membrane::Data_output (int T, Membrane* pWork, float a, float b, float g){
         for(int i = 1; i< N+1; i++){
             for(int j = 1; j < M+1; j++){
                 //поворачиваем
-                Point new_v = rotation(&M_Point[i][j], a, b, g);
+                Point new_v = rotation(&M_Point[i][j], a, b, g, N, M, initial_lengthX, initial_lengthY);
                 Data <<new_v.x << '\n';         //Записываем координаты Х точек поле поворота
                 Data <<new_v.y << '\n';         //Записываем координаты У точек после поворота
                 Data <<new_v.z << '\n';       //Записываем координаты Z точек после поворота
@@ -375,9 +375,9 @@ int main() {
 
     //размеры мембраны
     int N, M;
-    std::cout<< "N =";;
+    std::cout<< "N =";
     std::cin >> N;
-    std::cout<< "M =";;
+    std::cout<< "M =";
     std::cin >> M;
 
     Membrane Work(N, M);
@@ -386,7 +386,7 @@ int main() {
 
     //количество итераций
     int T;
-    std::cout<< "T =";;
+    std::cout<< "T =";
     std::cin >> T;
 
     //углы поворота
@@ -410,21 +410,30 @@ int main() {
 
 
 //матрица повората. Поворачивает координаты точки
-Point rotation(Point* v, float a, float b, float g) {
+Point rotation(Point* v, float a, float b, float g, int N, int M, float initial_lengthX, float initial_lengthY) {
     // a, b, g --- angles
     //угол поворота вокруг оси Z
     //угол поворота вокруг оси X
     //угол поворота вокруг оси Y
     Point new_v;
-    new_v.x = (cos(a) * cos(g) - sin(a) * cos(b) * sin(g)) * (*v).x +
-                   (-cos(a) * sin(g) - sin(a) * cos(b) * cos(g)) * (*v).y +
-                   (sin(a) * sin(b)) * (*v).z;
-    new_v.y = (sin(a) * cos(g) + cos(a) * cos(b) * sin(g)) * (*v).x +
-                   (-sin(a) * sin(g) + cos(a) * cos(b) * cos(g)) * (*v).y +
-                   (-cos(a) * sin(b)) * (*v).z;
-    new_v.z = (sin(b) * sin(g)) * (*v).x +
-                   (sin(b) * cos(g)) * (*v).y +
-                   cos(b) * (*v).z;
+    //перемещаем центр мембраны в ноль
+    new_v.x = (*v).x - ((N+1)*initial_lengthX)/2;
+    new_v.y = (*v).y - ((M+1)*initial_lengthY)/2;
+    new_v.z = (*v).z;
+    //поворачиваем
+    new_v.x = (cos(a) * cos(g) - sin(a) * cos(b) * sin(g)) * new_v.x +
+                   (-cos(a) * sin(g) - sin(a) * cos(b) * cos(g)) * new_v.y +
+                   (sin(a) * sin(b)) * new_v.z;
+    new_v.y = (sin(a) * cos(g) + cos(a) * cos(b) * sin(g)) * new_v.x +
+                   (-sin(a) * sin(g) + cos(a) * cos(b) * cos(g)) * new_v.y +
+                   (-cos(a) * sin(b)) * new_v.z;
+    new_v.z = (sin(b) * sin(g)) * new_v.x +
+                   (sin(b) * cos(g)) * new_v.y +
+                   cos(b) * new_v.z;
+    //возвращаем цент в начальное положение
+    new_v.x = new_v.x + ((N+1)*initial_lengthX)/2;
+    new_v.y = new_v.y + ((M+1)*initial_lengthY)/2;
+
     return new_v;
 
 };
