@@ -10,7 +10,6 @@
 
 class Point;
 class Membrane;
-
 Point rotation(Point* v, float a, float b, float g);
 
 
@@ -45,12 +44,13 @@ public:
         Vx = 0;
         Vy = 0;
         Vz = 0;
-        //масска и жесткости связей единичные
+        //масска
         m = 1;
-        rigidity_Top = 1;
-        rigidity_Bottom = 1;
-        rigidity_Left = 1;
-        rigidity_Right = 1;
+        //жесткости связей единичные. Удобно, для того, чтобы не парится о граничных тачках
+        rigidity_Top = 0;
+        rigidity_Bottom = 0;
+        rigidity_Left = 0;
+        rigidity_Right = 0;
         //длинна связи в нерастянутом состоянии по умолчанию единица
         Bond_length = 100;
     }
@@ -185,8 +185,9 @@ void Membrane::membrane_creation() {
     }
 
     //заполнение мембраны (двумерного вектора) точками расположеными в форме прямоугольной сетки.
-    //сетка дежит в
-    //В принцыме начальное расположене очек можно задавать произвольным
+    //сетка в начальный момент лежит в плоскости ХУ
+    //В принцыме начальное расположене очек можно задавать произвольным лишь бы у гажой точки было 4 соседа,
+    //но в принцыпе можно усовершенствовать прогу так, чтобы можно было задавать произвольное количество связей
     for (int i = 0; i < N+2; i++){
         for(int j = 0; j < M+2; j++){
             // приведение мембраны в начальное состояние с начальным координатами
@@ -196,9 +197,11 @@ void Membrane::membrane_creation() {
         }
     }
 
-    for (int i = 1; i < N+1; i++){ // задание жесткостей свяжей для каждой точки
+    // задание жесткостей свяжей для каждой точки
+    for (int i = 1; i < N+1; i++){
         for(int j = 1; j < M+1; j++){
-            if(i == 1 && j == 1){ //крайние случаи углы
+            //крайние случаи углы
+            if(i == 1 && j == 1){
                 M_Point[i][j].SetRigidity(0, rigidity, 0, rigidity);
             } else if(i == 1 && j == M){
                 M_Point[i][j].SetRigidity(0, rigidity, rigidity, 0);
@@ -206,7 +209,9 @@ void Membrane::membrane_creation() {
                 M_Point[i][j].SetRigidity(rigidity, 0, 0, rigidity);
             }else if ( i == N && j == M){
                 M_Point[i][j].SetRigidity(rigidity, 0, rigidity, 0);
-            }else if ( i == 1 ){ //крайние случаи края
+            }
+            //крайние случаи. Края
+            else if ( i == 1 ){
                 M_Point[i][j].SetRigidity(rigidity, rigidity, 0, rigidity);
             }else if ( i == N){
                 M_Point[i][j].SetRigidity(rigidity, rigidity, rigidity, 0);
@@ -214,8 +219,10 @@ void Membrane::membrane_creation() {
                 M_Point[i][j].SetRigidity(0, rigidity, rigidity, rigidity);
             }else if ( j == M){
                 M_Point[i][j].SetRigidity(rigidity, 0, rigidity, rigidity);
-            } else{
-                M_Point[i][j].SetRigidity(rigidity, rigidity, rigidity, rigidity); //внутренние точки мембраны
+            }
+            //внутренние точки мембраны
+            else{
+                M_Point[i][j].SetRigidity(rigidity, rigidity, rigidity, rigidity);
             }
         }
     }
@@ -364,7 +371,7 @@ int main() {
 
 
 
-//матрица повората. Поврацивает координаты двумерного вектора
+//матрица повората. Поворачивает координаты точки
 Point rotation(Point* v, float a, float b, float g) {
     // a, b, g --- angles
     Point new_v;
