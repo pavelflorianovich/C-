@@ -36,15 +36,24 @@ def drawing_lines():
             canv.create_line(points[i][j - 1].x, points[i][j - 1].y, points[i][j].x, points[i][j].y)
             canv.create_line(points[i - 1][j].x, points[i - 1][j].y, points[i][j].x, points[i][j].y)
 
+def drawing_circles():
+    for i in range(row):
+        for j in range(column):
+            canv.create_oval(points[i][j].x - r, points[i][j].y - r, 
+            points[i][j].x + r, points[i][j].y + r, fill = "black")
+
 
 def modeling():
     canv.delete("all")
     reading()
     drawing_lines()
+    drawing_circles()
 
 
 
 f = open('Data.txt', 'r')
+
+r = 3 # radius of circles
 
 Time = int(f.readline())  # Time of work
 row = int(f.readline())  # Number of rows
