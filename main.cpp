@@ -468,18 +468,18 @@ Point rotation(Point* v, float a, float b, float g, int N, int M, float initial_
     new_v.y = (*v).y - ((M+1)*initial_lengthY)/2;
     new_v.z = (*v).z;
     //поворачиваем
-    new_v.x = (cos(a) * cos(g) - sin(a) * cos(b) * sin(g)) * new_v.x +
-                   (-cos(a) * sin(g) - sin(a) * cos(b) * cos(g)) * new_v.y +
-                   (sin(a) * sin(b)) * new_v.z;
+    new_v.x = (cos(a*PI/180) * cos(g*PI/180) - sin(a*PI/180) * cos(b*PI/180) * sin(g*PI/180)) * new_v.x +
+                   (-cos(a*PI/180) * sin(g*PI/180) - sin(a*PI/180) * cos(b*PI/180) * cos(g*PI/180)) * new_v.y +
+                   (sin(a*PI/180) * sin(b*PI/180)) * new_v.z;
     new_v.y = (sin(a) * cos(g) + cos(a) * cos(b) * sin(g)) * new_v.x +
-                   (-sin(a) * sin(g) + cos(a) * cos(b) * cos(g)) * new_v.y +
-                   (-cos(a) * sin(b)) * new_v.z;
-    new_v.z = (sin(b) * sin(g)) * new_v.x +
-                   (sin(b) * cos(g)) * new_v.y +
-                   cos(b) * new_v.z;
+                   (-sin(a*PI/180) * sin(g*PI/180) + cos(a*PI/180) * cos(b*PI/180) * cos(g*PI/180)) * new_v.y +
+                   (-cos(a*PI/180) * sin(b*PI/180)) * new_v.z;
+    new_v.z = (sin(b*PI/180) * sin(g*PI/180)) * new_v.x +
+                   (sin(b*PI/180) * cos(g*PI/180)) * new_v.y +
+                   cos(b*PI/180) * new_v.z;
     //возвращаем цент в начальное положение
-    new_v.x = new_v.x + ((N+4)*initial_lengthX)/2;
-    new_v.y = new_v.y + ((M+2)*initial_lengthY)/2;
+    new_v.x = new_v.x + ((2* N)*initial_lengthX)/2;
+    new_v.y = new_v.y + ((2*M)*initial_lengthY)/2;
 
     return new_v;
 

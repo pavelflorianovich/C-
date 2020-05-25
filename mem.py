@@ -53,7 +53,7 @@ def modeling():
 
 f = open('Data.txt', 'r')
 
-r = 3 # radius of circles
+r = 0.5 # radius of circles
 
 Time = int(f.readline())  # Time of work
 row = int(f.readline())  # Number of rows
