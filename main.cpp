@@ -10,7 +10,9 @@
 
 class Point;
 class Membrane;
-void rotation(std::vector<std::vector <Point>>* v, int N, int M, float a, float b, float g);
+
+Point rotation(Point* v, float a, float b, float g);
+
 
 class Point {
 //private: //модификатор доступа (https://www.youtube.com/watch?v=6udKffus77A&list=PLQOaTSbfxUtBm7DxblJZShqBQnBAVzlXX&index=31)
@@ -290,15 +292,16 @@ void Membrane::Data_output (int T, Membrane* pWork, float a, float b, float g){
     Data << M << '\n';
     Data << N << '\n';
 
-    //поворачиваем
-    rotation(&M_Point, N, M, a, b, g);
+
 
     for(int t =0; t<T; t++){
         for(int i = 1; i< N+1; i++){
             for(int j = 1; j < M+1; j++){
-                Data <<M_Point[i][j].x << '\n';         //Записываем координаты Х точек поле поворота
-                Data <<M_Point[i][j].y << '\n';         //Записываем координаты У точек после поворота
-                Data <<M_Point[i][j].z << '\n';       //Записываем координаты Z точек после поворота
+                //поворачиваем
+                Point new_v = rotation(&M_Point[i][j], a, b, g);
+                Data <<new_v.x << '\n';         //Записываем координаты Х точек поле поворота
+                Data <<new_v.y << '\n';         //Записываем координаты У точек после поворота
+                Data <<new_v.z << '\n';       //Записываем координаты Z точек после поворота
             }
         }
         (*pWork).Move_membrane();
@@ -362,22 +365,18 @@ int main() {
 
 
 //матрица повората. Поврацивает координаты двумерного вектора
-void rotation(std::vector<std::vector <Point>>* v, int N, int M, float a, float b, float g) {
+Point rotation(Point* v, float a, float b, float g) {
     // a, b, g --- angles
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < M; j++) {
-            int x = (*v)[i][j].x;
-            int y = (*v)[i][j].y;
-            int z = (*v)[i][j].z;
-            (*v)[i][j].x = (cos(a) * cos(g) - sin(a) * cos(b) * sin(g)) * x +
-                           (-cos(a) * sin(g) - sin(a) * cos(b) * cos(g)) * y +
-                           (sin(a) * sin(b)) * z;
-            (*v)[i][j].y = (sin(a) * cos(g) + cos(a) * cos(b) * sin(g)) * x +
-                           (-sin(a) * sin(g) + cos(a) * cos(b) * cos(g)) * y +
-                           (-cos(a) * sin(b)) * z;
-            (*v)[i][j].z = (sin(b) * sin(g)) * x +
-                           (sin(b) * cos(g)) * y +
-                           cos(b) * z;
-        }
-    }
-}
+    Point new_v;
+    new_v.x = (cos(a) * cos(g) - sin(a) * cos(b) * sin(g)) * (*v).x +
+                   (-cos(a) * sin(g) - sin(a) * cos(b) * cos(g)) * (*v).y +
+                   (sin(a) * sin(b)) * (*v).z;
+    new_v.y = (sin(a) * cos(g) + cos(a) * cos(b) * sin(g)) * (*v).x +
+                   (-sin(a) * sin(g) + cos(a) * cos(b) * cos(g)) * (*v).y +
+                   (-cos(a) * sin(b)) * (*v).z;
+    new_v.z = (sin(b) * sin(g)) * (*v).x +
+                   (sin(b) * cos(g)) * (*v).y +
+                   cos(b) * (*v).z;
+    return new_v;
+
+};
