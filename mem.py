@@ -70,7 +70,7 @@ def modeling():
 
 
 
-f = open("data.txt", 'r')
+f = open('Data.txt', 'r')
 
 Time = int(f.readline())  # Time of work
 row = int(f.readline())  # Number of rows

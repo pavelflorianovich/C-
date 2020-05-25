@@ -159,7 +159,7 @@ public:
     void membrane_creation(); // cоздание мембраны с размера N+2 на M+2 крайние слои пустыщки(жесткость связей их навна 0)
     void Dynamics(int i, int j); //метод взаимодействия точки со своим окружением
     void Move_membrane(); // изменение скарастей и координат мембраны
-    void Data_output (); //вывод данных
+    void Data_output (int T, Membrane* pWork); //вывод данных
     Point Rotation (Point a, float ux, float uy, float uz);
 };
 
@@ -270,34 +270,40 @@ void Membrane::Move_membrane() {
 //    }
 
 };
-void Membrane::Data_output (){
-    std::vector<std::vector <Point>> Membrane_coordinates_Point;
-    std::ofstream Data("H:\\NewProject\\Data.txt", std::ios_base::app);
+void Membrane::Data_output (int T, Membrane* pWork){
+    std::ofstream Data("H:\\NewProject\\Data.txt", std::ios_base::trunc);
 
-    for(int i = 1; i< N+1; i++){
-        for(int j = 1; j < M+1; j++){
-            Point data = Rotation(Membrane_Point[i][j], 0, 0, PI/2);
-            Data <<data.x << '\n';         //Записываем координаты Х точек поле поворота
-            Data <<data.y << '\n';         //Записываем координаты У точек после поворота
-            Data <<data.z << '\n';       //Записываем координаты Z точек после поворота
+    Data << T << '\n';         //Записываем количество итераций
+    Data << M << '\n';         //Записываем размеры
+    Data << N << '\n';
+
+    for(int t =0; t<T; t++){
+        for(int i = 1; i< N+1; i++){
+            for(int j = 1; j < M+1; j++){
+                Data <<Membrane_Point[i][j].x << '\n';         //Записываем координаты Х точек поле поворота
+                Data <<Membrane_Point[i][j].y << '\n';         //Записываем координаты У точек после поворота
+                Data <<Membrane_Point[i][j].z << '\n';       //Записываем координаты Z точек после поворота
+            }
         }
+        (*pWork).Move_membrane();
     }
+
     Data.close(); //Закрываем файл
 
 };
-Point Membrane::Rotation(Point a, float ux, float uy, float uz){ //alpha - ux, beta - uy, gamma - uz
-    Point res;
-//    std::cout<< res.x<< res.y << res.z << std::endl;
-//    std::cout<<a.x<< ' '<< a.y << ' '<<a.z<< std::endl;
-//    res.x = a.x*(cos(ux)*cos(uz)-sin(ux)*cos(uy)*sin(uz)) + a.y*(-cos(ux)*sin(uz)-sin(ux)*cos(uy)*cos(uz)) + a.z*sin(ux)*sin(uy);
-//    res.y = a.x*(sin(ux)*cos(uz)+cos(ux)*cos(uy)*sin(uz)) + a.y*(-sin(uz)*sin(uz) + cos(ux)*cos(uy)*cos(uz)) - a.z*cos(ux)*cos(uy);
-//    res.z = a.x*sin(uy)*sin(uz) + sin(uy)*cos(uz)*a.y  + cos(uy)*a.z;
-    res.x = a.x;
-    res.y = a.y;
-    res.z = a.z;
-    std::cout<< res.x<< ' '<<res.y <<' '<< res.z << std::endl;
-    return res;
-}
+//Point Membrane::Rotation(Point a, float ux, float uy, float uz){ //alpha - ux, beta - uy, gamma - uz
+//    Point res;
+////    std::cout<< res.x<< res.y << res.z << std::endl;
+////    std::cout<<a.x<< ' '<< a.y << ' '<<a.z<< std::endl;
+////    res.x = a.x*(cos(ux)*cos(uz)-sin(ux)*cos(uy)*sin(uz)) + a.y*(-cos(ux)*sin(uz)-sin(ux)*cos(uy)*cos(uz)) + a.z*sin(ux)*sin(uy);
+////    res.y = a.x*(sin(ux)*cos(uz)+cos(ux)*cos(uy)*sin(uz)) + a.y*(-sin(uz)*sin(uz) + cos(ux)*cos(uy)*cos(uz)) - a.z*cos(ux)*cos(uy);
+////    res.z = a.x*sin(uy)*sin(uz) + sin(uy)*cos(uz)*a.y  + cos(uy)*a.z;
+//    res.x = a.x;
+//    res.y = a.y;
+//    res.z = a.z;
+//    std::cout<< res.x<< ' '<<res.y <<' '<< res.z << std::endl;
+//    return res;
+//}
 
 
 
@@ -318,10 +324,10 @@ int main() {
     std::cout<< "T =";;
     std::cin >> T;
 
-    for(int i =0; i<T; i++){
-        Work.Data_output();
-        Work.Move_membrane();
-    }
+    Membrane* pWork = &Work;
+
+    Work.Data_output (T, pWork);
+
 
 
     return 0;
