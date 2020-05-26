@@ -2,6 +2,7 @@
 #include <vector>
 #include <cmath>
 #include <fstream>
+#include <ctime>
 
 #define PI 3.14159265
 //предполагается сисема координат с нулем в левом верхнем углу экрана
@@ -479,8 +480,7 @@ int main() {
     std::cout<< "dt =";
     std::cin >> dt;
 
-
-
+    unsigned int start_time =  clock();
 
     //Membrane Work(N, M);
     Membrane Work(N, M, initial_lengthX, initial_lengthY, rigidity);
@@ -506,6 +506,9 @@ int main() {
 
     //динамика, поворот и запись файла
     Work.Data_output (T, pWork, a, b, g, dt, v_central, k);
+
+    unsigned int end_time = clock();
+    std::cout << "runtime = " << float(end_time - start_time) / CLOCKS_PER_SEC << " sec";
 
     return 0;
 }

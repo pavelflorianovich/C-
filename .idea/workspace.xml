@@ -12,13 +12,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9bbb3423-cad1-4291-972f-e13344498291" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Data.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Data.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/NewProject.dir/main.cpp.obj" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/NewProject.dir/main.cpp.obj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/NewProject.dir/vc140.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/NewProject.dir/vc140.pdb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/NewProject.exe" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/NewProject.exe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/NewProject.ilk" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/NewProject.ilk" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/NewProject.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/NewProject.pdb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -92,7 +85,7 @@
       <workItem from="1590248823398" duration="9542000" />
       <workItem from="1590387508701" duration="1199000" />
       <workItem from="1590397914058" duration="40213000" />
-      <workItem from="1590475542496" duration="3088000" />
+      <workItem from="1590475542496" duration="3679000" />
     </task>
     <servers />
   </component>
@@ -104,22 +97,22 @@
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="463" y="121" width="437" height="485" key="FileChooserDialogImpl/0.0.1366.728@0.0.1366.728" timestamp="1590042940671" />
-    <state width="1323" height="127" key="GridCell.Tab.0.bottom" timestamp="1590478518542">
+    <state width="1323" height="127" key="GridCell.Tab.0.bottom" timestamp="1590479648341">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1323" height="127" key="GridCell.Tab.0.bottom/0.0.1366.728@0.0.1366.728" timestamp="1590478518542" />
-    <state width="1323" height="127" key="GridCell.Tab.0.center" timestamp="1590478518542">
+    <state width="1323" height="127" key="GridCell.Tab.0.bottom/0.0.1366.728@0.0.1366.728" timestamp="1590479648341" />
+    <state width="1323" height="127" key="GridCell.Tab.0.center" timestamp="1590479648341">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1323" height="127" key="GridCell.Tab.0.center/0.0.1366.728@0.0.1366.728" timestamp="1590478518542" />
-    <state width="1323" height="127" key="GridCell.Tab.0.left" timestamp="1590478518542">
+    <state width="1323" height="127" key="GridCell.Tab.0.center/0.0.1366.728@0.0.1366.728" timestamp="1590479648341" />
+    <state width="1323" height="127" key="GridCell.Tab.0.left" timestamp="1590479648341">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1323" height="127" key="GridCell.Tab.0.left/0.0.1366.728@0.0.1366.728" timestamp="1590478518542" />
-    <state width="1323" height="127" key="GridCell.Tab.0.right" timestamp="1590478518542">
+    <state width="1323" height="127" key="GridCell.Tab.0.left/0.0.1366.728@0.0.1366.728" timestamp="1590479648341" />
+    <state width="1323" height="127" key="GridCell.Tab.0.right" timestamp="1590479648341">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1323" height="127" key="GridCell.Tab.0.right/0.0.1366.728@0.0.1366.728" timestamp="1590478518542" />
+    <state width="1323" height="127" key="GridCell.Tab.0.right/0.0.1366.728@0.0.1366.728" timestamp="1590479648341" />
     <state x="391" y="191" key="com.intellij.ide.util.TipDialog" timestamp="1590475545305">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
@@ -173,7 +166,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/main.cpp</url>
-          <line>515</line>
+          <line>518</line>
           <option name="timeStamp" value="20" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
