@@ -82,7 +82,7 @@ public:
     // метод расчитывает растояние между двумя тояками a и b
     float distance(Point a, Point b);
     //метод расчитывает новые координаты точки: x += Vx...
-    void move(float Vx, float Vy, float Vz);
+    void move(float Vx, float Vy, float Vz, float  dt);
     //КОНЕЦ ТЕЛА КЛАССА
 };
 
@@ -110,10 +110,10 @@ float Point::distance(Point a, Point b){ // метод расчитывает р
     return sqrt(pow((a.x - b.x),2) + pow((a.y - b.y),2) + pow((a.z - b.z),2));
 };
 //метод расчитывает новые координаты точки: x += Vx...
-void Point::move(float Vx, float Vy, float Vz){
-    x += Vx;
-    y += Vy;
-    z += Vz;
+void Point::move(float Vx, float Vy, float Vz, float dt){
+    x += Vx*dt;
+    y += Vy*dt;
+    z += Vz*dt;
 };
 
 
@@ -193,11 +193,11 @@ public:
     // cоздание мембраны с размера N+2 на M+2 крайние слои пустыщки(жесткость связей их навна 0)
     void membrane_creation(float mass, float Bond_length, int k, float v_central);
     //метод взаимодействия точки со своим окружением
-    void Dynamics(int i, int j);
+    void Dynamics(int i, int j, float dt);
     // изменение скарастей и координат мембраны
-    void Move_membrane();
+    void Move_membrane(float dt, float v_centrak, int k);
     //вывод данных
-    void Data_output (int T, Membrane* pWork, float a, float b, float g);
+    void Data_output (int T, Membrane* pWork, float a, float b, float g, float  dt, float v_central, int k);
 
     //НАЧАЛЬНЫЕ УСЛОВИЯ
     //РАСПРЕДЕЛЕНИЯ КООРДИНАТ
@@ -215,7 +215,7 @@ public:
     //Точке по номеру kk присваивается скорость v_central вдоль оси z
     void Speed_distribution_2(int i, int j, int k, float v_central);
     //Точкам на k вертикали присваевается скорость v_central
-    void Membrane::Speed_distribution_3(int i, int j, int k, float v_central);
+    void Speed_distribution_3(int i, int j, int k, float v_central);
     //КОНЕЦ ТЕЛА КЛАССА
 };
 
@@ -319,7 +319,7 @@ void Membrane::membrane_creation(float mass, float Bond_length, int k, float v_c
         }
     }
 };
-void Membrane::Dynamics(int i, int j){
+void Membrane::Dynamics(int i, int j, float dt){
     float length_top, length_bottom, length_left, length_right; //растояние между обектом действия точка Membrane_Point[i][j] и соседями
     float gamma_top, gamma_bottom, gamma_left, gamma_right; //параметр для упрощения формулы
 
@@ -334,55 +334,40 @@ void Membrane::Dynamics(int i, int j){
     gamma_right = M_Point[i][j].rigidity_Right/M_Point[i][j].m *(1 - M_Point[i][j].Bond_length/ length_right);
 
     //расчет новых скоростей течки
-    M_Point[i][j].Vx += gamma_top * (M_Point[i][j-1].x - M_Point[i][j].x) +
+    M_Point[i][j].Vx += dt * (gamma_top * (M_Point[i][j-1].x - M_Point[i][j].x) +
                                gamma_bottom * (M_Point[i][j+1].x - M_Point[i][j].x) +
                                gamma_left * (M_Point[i-1][j].x - M_Point[i][j].x) +
-                               gamma_right * (M_Point[i+1][j].x - M_Point[i][j].x);
+                               gamma_right * (M_Point[i+1][j].x - M_Point[i][j].x));
 
-    M_Point[i][j].Vy += gamma_top * (M_Point[i][j-1].y  - M_Point[i][j].y) +
+    M_Point[i][j].Vy += dt * (gamma_top * (M_Point[i][j-1].y  - M_Point[i][j].y) +
                                gamma_bottom * (M_Point[i][j+1].y - M_Point[i][j].y) +
                                gamma_left * (M_Point[i-1][j].y - M_Point[i][j].y) +
-                               gamma_right * (M_Point[i+1][j].y - M_Point[i][j].y);
+                               gamma_right * (M_Point[i+1][j].y - M_Point[i][j].y));
 
-    M_Point[i][j].Vz += gamma_top * (M_Point[i][j-1].z  - M_Point[i][j].z) +
+    M_Point[i][j].Vz += dt * (gamma_top * (M_Point[i][j-1].z  - M_Point[i][j].z) +
                                gamma_bottom * (M_Point[i][j+1].z - M_Point[i][j].z) +
                                gamma_left * (M_Point[i-1][j].z - M_Point[i][j].z) +
-                               gamma_right * (M_Point[i+1][j].z - M_Point[i][j].z);
+                               gamma_right * (M_Point[i+1][j].z - M_Point[i][j].z));
 }
-void Membrane::Move_membrane() {
+void Membrane::Move_membrane(float dt, float v_central, int k) {
     for(int i = 1; i < N+1; i++){
         for(int j = 1; j < M+1; j++){
-            Dynamics(i, j);
+            Dynamics(i, j, dt);
         }
     }
 
-//    for(int i = 1; i < N+1; i++){
-//        for(int j = 1; j < M+1; j++){
-//            std::cout<< Membrane_Point[i][j].Vx << std::endl;
-//            std::cout<< Membrane_Point[i][j].Vy << std::endl;
-//            std::cout<< Membrane_Point[i][j].Vz << std::endl;
-//            std::cout<< Membrane_Point[i][j].z << std::endl;
-//        }
-//    }
-
     for(int i = 1; i < N+1; i++){
         for(int j = 1; j < M+1; j++){
-            M_Point[i][j].move(M_Point[i][j].Vx, M_Point[i][j].Vy, M_Point[i][j].Vz);
+            if(i == k && j == k){
+                M_Point[i][j].move(M_Point[i][j].Vx, M_Point[i][j].Vy, v_central, dt);
+            } else{
+                M_Point[i][j].move(M_Point[i][j].Vx, M_Point[i][j].Vy, M_Point[i][j].Vz, dt);
+            }
+
         }
     }
-
-//    int k = N/2;
-//    int c = M/2;
-//    int p = 1; //размер "квадрата" центальных точек
-//    float V_central = 5; //скорость специального точек
-//    for(int i = k-p; i < k+p; i++){
-//        for(int j = c-p; j < c+p; j++){
-//            Membrane_Point[i][j].Vz += V_central;
-//        }
-//    }
-
 };
-void Membrane::Data_output (int T, Membrane* pWork, float a, float b, float g){
+void Membrane::Data_output (int T, Membrane* pWork, float a, float b, float g, float dt, float v_central, int k){
     std::ofstream Data("H:\\NewProject\\Data.txt", std::ios_base::trunc);
 
     //Записываем количество итераций
@@ -403,7 +388,8 @@ void Membrane::Data_output (int T, Membrane* pWork, float a, float b, float g){
                 Data <<new_v.z << '\n';       //Записываем координаты Z точек после поворота
             }
         }
-        (*pWork).Move_membrane();
+        //новая инераци (движение)
+        (*pWork).Move_membrane(dt, v_central, k);
     }
 
     Data.close(); //Закрываем файл
@@ -477,7 +463,7 @@ int main() {
     std::cout<< "k =";
     std::cin >> k;
 
-    float initial_lengthX, initial_lengthY, rigidity, mass, Bond_length, v_central;
+    float initial_lengthX, initial_lengthY, rigidity, mass, Bond_length, v_central, dt;
     std::cout<< "initial_lengthX =";
     std::cin >> initial_lengthX;
     std::cout<< "initial_lengthY =";
@@ -490,6 +476,9 @@ int main() {
     std::cin >> Bond_length;
     std::cout<< "v_central =";
     std::cin >> v_central;
+    std::cout<< "dt =";
+    std::cin >> dt;
+
 
 
 
@@ -516,7 +505,7 @@ int main() {
     std::cin>>g;
 
     //динамика, поворот и запись файла
-    Work.Data_output (T, pWork, a, b, g);
+    Work.Data_output (T, pWork, a, b, g, dt, v_central, k);
 
     return 0;
 }
@@ -545,8 +534,8 @@ Point rotation(Point* v, float a, float b, float g, int N, int M, float initial_
                    (sin(b*PI/180) * cos(g*PI/180)) * new_v.y +
                    cos(b*PI/180) * new_v.z;
     //возвращаем цент в начальное положение
-    new_v.x = new_v.x + ((N+1)*initial_lengthX)/2 + 50;
-    new_v.y = new_v.y + ((M+1)*initial_lengthY)/2 + 50;
+    new_v.x = new_v.x + ((N+1)*initial_lengthX)/2;
+    new_v.y = new_v.y + ((M+1)*initial_lengthY)/2;
 
     return new_v;
 
